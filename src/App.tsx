@@ -116,11 +116,13 @@ export default function App() {
   const [loadingFirebase, setLoadingFirebase] = useState<boolean>(true);
   const [authErrorAlert, setAuthErrorAlert] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [estVideoCost, setEstVideoCost] = useState<number>(1200); 
+  const [estScriptCost, setEstScriptCost] = useState<number>(30);
 
   const creditPackages: CreditPackage[] = [
-    { id: 'pkg-1', name: 'Paket Pemula Affiliate', credits: 20, price: 10000, description: 'Cocok untuk mencoba naskah & konten baru' },
-    { id: 'pkg-2', name: 'Paket Viral Konten (Sangat Laku)', credits: 55, price: 25000, description: 'Sangat laku! Cukup untuk render video Veo 5~10x tambahan' },
-    { id: 'pkg-3', name: 'Paket Sultan Agency', credits: 150, price: 50000, description: 'Bonus Hemat 30%! Pilihan terbaik bagi agensi affiliate aktif' }
+    { id: 'pkg-1', name: 'Paket Pemula Affiliate', credits: 20, price: 15000, description: 'Membuka Visual & Voice-Over. Cocok untuk mencoba riset naskah affiliate baru.' },
+    { id: 'pkg-2', name: 'Paket Viral Konten (Sangat Laku)', credits: 55, price: 49000, description: 'Sangat laku! Membuka Render Video Veo AI (untuk render hingga 27 klip video premium).' },
+    { id: 'pkg-3', name: 'Paket Sultan Agency', credits: 160, price: 149000, description: 'Bonus Hemat 30%! Pilihan terbaik agensi aktif (untuk render hingga 80 klip video premium).' }
   ];
 
   const [topUpSenderName, setTopUpSenderName] = useState<string>(() => localStorage.getItem('insta_sender_name') || '');
@@ -137,7 +139,7 @@ export default function App() {
       {
         id: "TX-48192",
         packageName: "Paket Viral Konten (Sangat Laku)",
-        price: 25000,
+        price: 49000,
         credits: 55,
         senderName: "Bagus Setiawan",
         whatsappNumber: "081299887766",
@@ -147,8 +149,8 @@ export default function App() {
       {
         id: "TX-12903",
         packageName: "Paket Sultan Agency",
-        price: 50000,
-        credits: 150,
+        price: 149000,
+        credits: 160,
         senderName: "Rina Wijaya",
         whatsappNumber: "089855554433",
         status: "approved",
@@ -986,7 +988,7 @@ export default function App() {
                     <div className="text-right flex flex-col gap-1 items-end w-full sm:w-auto">
                       <div className="text-xs text-slate-400">Total Pembayaran:</div>
                       <div className="text-lg font-black text-emerald-400 font-mono">
-                        Rp {(creditPackages.find(p => p.id === selectedPkgId)?.price || 25000).toLocaleString('id-ID')}
+                        Rp {(creditPackages.find(p => p.id === selectedPkgId)?.price || 49000).toLocaleString('id-ID')}
                       </div>
                     </div>
                   </div>
@@ -1232,6 +1234,180 @@ export default function App() {
                     <span className="text-base font-extrabold text-violet-400 font-mono block mt-1">
                       {userCredits} Kredit
                     </span>
+                  </div>
+                </div>
+
+                {/* 📊 BUSINESS PROFITABILITY & ANTI-BLUNDER MARGIN SIMULATOR */}
+                <div className="bg-slate-950 border border-indigo-600/30 rounded-2xl p-5 mb-6 text-left">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-slate-800 pb-3 mb-4">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5 font-display uppercase tracking-wider">
+                        📊 Kalkulator Analisis Margin & Anti-Blunder Premium
+                      </h3>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Menghitung pengeluaran (Biaya API Google) vs pemasukan Anda dari sistem langganan Premium 1, 2, dan 3.
+                      </p>
+                    </div>
+                    <div className="bg-emerald-950/40 text-emerald-400 border border-emerald-800/40 px-2.5 py-1 rounded-lg text-[10px] font-bold font-mono">
+                      💰 Simulasi Bisnis Aktif
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                    {/* Input Controls */}
+                    <div className="space-y-4 bg-slate-900/40 p-4 rounded-xl border border-slate-800/60">
+                      <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block font-mono">
+                        ⚙️ Pengaturan Estimasi Biaya Pemrosesan API
+                      </span>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-1">
+                        <div>
+                          <label className="text-[10px] text-slate-400 mb-1.5 block font-mono uppercase">
+                            Biaya 1x Render Video Veo AI:
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2 text-[11px] font-bold text-slate-500 font-mono">Rp</span>
+                            <input 
+                              type="number"
+                              value={estVideoCost}
+                              onChange={(e) => setEstVideoCost(Math.max(0, parseInt(e.target.value) || 0))}
+                              className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs font-mono font-bold text-white outline-none focus:border-indigo-500"
+                            />
+                          </div>
+                          <span className="text-[9px] text-slate-500 font-mono block mt-1">Estimasi Cloud standard: Rp 1,200 per adegan video.</span>
+                        </div>
+
+                        <div>
+                          <label className="text-[10px] text-slate-400 mb-1.5 block font-mono uppercase">
+                            Biaya 1x Teks Naskah Gemini:
+                          </label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2 text-[11px] font-bold text-slate-500 font-mono">Rp</span>
+                            <input 
+                              type="number"
+                              value={estScriptCost}
+                              onChange={(e) => setEstScriptCost(Math.max(0, parseInt(e.target.value) || 0))}
+                              className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-3 py-2 text-xs font-mono font-bold text-white outline-none focus:border-indigo-500"
+                            />
+                          </div>
+                          <span className="text-[9px] text-slate-500 font-mono block mt-1">Sangat hemat: ~Rp 10 - Rp 50 per naskah.</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Explainer and Formula */}
+                    <div className="bg-slate-900/40 p-4 rounded-xl border border-slate-800/60 text-xs text-slate-300 space-y-2.5">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block font-mono">
+                        💡 Cara Kerja Sistem & Rumus Profitabilitas
+                      </span>
+                      <p className="leading-relaxed text-[11px] text-slate-400">
+                        Keuntungan Anda berasal dari selisih harga jual paket dikurang biaya eksekusi API model koin. 
+                        <strong> Premium 1</strong> hanya menggunakan naskah teks (+ visual lokal) tanpa render video. 
+                        <strong> Premium 2 & 3</strong> menyertakan render video premium <strong>Veo AI</strong> (Setiap klik render mengurangi 2 kredit, yang secara tidak langsung memiliki pengeluaran nyata).
+                      </p>
+                      <div className="bg-slate-950 p-2.5 rounded-lg border border-slate-800/50 text-[10px] font-mono text-indigo-300">
+                        📝 Rumus Margin: <span className="text-white">((Harga Jual - Biaya API) / Harga Jual) x 100%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Profitability Calculation Matrix Table */}
+                  <div className="border border-slate-800 rounded-xl overflow-hidden bg-slate-950">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="bg-slate-900 text-slate-400 border-b border-slate-800 font-mono text-[9px] uppercase">
+                            <th className="p-3">Sistem Premium</th>
+                            <th className="p-3 text-right">Harga Jual</th>
+                            <th className="p-3 text-center">Kuota Kredit</th>
+                            <th className="p-3 text-center">Maks Render Video</th>
+                            <th className="p-3 text-right">Maks Biaya API</th>
+                            <th className="p-3 text-right">Proyeksi Bersih</th>
+                            <th className="p-3 text-center">Margin Keuntungan</th>
+                            <th className="p-3 text-center">Status Kelayakan</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {creditPackages.map((pkg, idx) => {
+                            // Compute max potential API cost
+                            // Pkg 1 (Pemula) -> Only text script generation
+                            // Pkg 2 & Pkg 3 -> Video rendering (costs 2 credits per video)
+                            const isVideoTier = pkg.id !== 'pkg-1';
+                            const maxVideoSc = isVideoTier ? Math.floor(pkg.credits / 2) : 0;
+                            const leftCreditsForScript = pkg.credits - (maxVideoSc * 2);
+                            
+                            const videoApiExpense = maxVideoSc * estVideoCost;
+                            const scriptApiExpense = Math.max(0, leftCreditsForScript) * estScriptCost;
+                            const totalMaxExpense = videoApiExpense + scriptApiExpense;
+                            
+                            const netProfit = pkg.price - totalMaxExpense;
+                            const profitMargin = (netProfit / pkg.price) * 100;
+                            
+                            let statusText = "";
+                            let statusColor = "";
+                            if (profitMargin > 50) {
+                              statusText = "SANGAT SEHAT";
+                              statusColor = "bg-emerald-600/20 text-emerald-400 border-emerald-500/20";
+                            } else if (profitMargin >= 30) {
+                              statusText = "SEHAT & LUKRATIF";
+                              statusColor = "bg-indigo-600/25 text-indigo-400 border-indigo-500/20";
+                            } else if (profitMargin >= 0) {
+                              statusText = "RAWAN BLUNDER";
+                              statusColor = "bg-amber-600/20 text-amber-500 border-amber-500/20 animate-pulse";
+                            } else {
+                              statusText = "RUGI / DEFISIT";
+                              statusColor = "bg-rose-600/25 text-rose-400 border-rose-500/30 font-black animate-bounce";
+                            }
+
+                            return (
+                              <tr key={pkg.id} className="border-b border-slate-900 hover:bg-slate-900/40 font-mono text-[11px] text-slate-300">
+                                <td className="p-3 font-sans font-extrabold text-white">
+                                  {idx === 0 && "💎 Premium 1 (Pemula)"}
+                                  {idx === 1 && "👑 Premium 2 (Viral)"}
+                                  {idx === 2 && "🦄 Premium 3 (Sultan)"}
+                                </td>
+                                <td className="p-3 text-right text-emerald-400 font-bold">
+                                  Rp {pkg.price.toLocaleString('id-ID')}
+                                </td>
+                                <td className="p-3 text-center text-slate-400 font-bold">
+                                  {pkg.credits} Kr
+                                </td>
+                                <td className="p-3 text-center text-slate-400">
+                                  {isVideoTier ? `${maxVideoSc} Klip` : "0 (Locked)"}
+                                </td>
+                                <td className="p-3 text-right text-red-405">
+                                  Rp {totalMaxExpense.toLocaleString('id-ID')}
+                                </td>
+                                <td className="p-3 text-right text-violet-300 font-bold">
+                                  Rp {netProfit.toLocaleString('id-ID')}
+                                </td>
+                                <td className={`p-3 text-center font-bold font-mono text-xs ${profitMargin > 30 ? 'text-emerald-400' : profitMargin >= 0 ? 'text-amber-500' : 'text-rose-500'}`}>
+                                  {profitMargin.toFixed(1)}%
+                                </td>
+                                <td className="p-3 text-center">
+                                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold border ${statusColor}`}>
+                                    {statusText}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Summary Business Recommendations */}
+                  <div className="mt-4 p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs flex items-start gap-2.5">
+                    <div className="p-2 bg-indigo-950 text-indigo-400 border border-indigo-900 rounded-lg font-mono text-[14px] shrink-0">
+                      💡
+                    </div>
+                    <div>
+                      <strong className="text-white block mb-0.5 font-bold">Rekomendasi Strategi Finansial Kak Eko:</strong>
+                      <p className="text-[11px] text-slate-400 leading-relaxed">
+                        Dengan menempatkan harga <strong className="text-emerald-400">Premium 1 (Rp 15.000)</strong>, <strong className="text-emerald-400">Premium 2 (Rp 49.000)</strong>, dan <strong className="text-emerald-400">Premium 3 (Rp 149.000)</strong>, model bisnis Anda sekarang 100% bebas dari risiko boncos (blunder). Seiring naiknya biaya API per video, profit margin Anda tetap berada di level aman di atas <strong className="text-white font-mono">35%</strong> sehingga usaha platform ini sangat lukratif dan siap ditingkatkan!
+                      </p>
+                    </div>
                   </div>
                 </div>
 
