@@ -1,0 +1,149 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account containing credit balance, role, and verification details",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique Firebase Authentication UID"
+        },
+        "credits": {
+          "type": "number",
+          "description": "Number of available script/video generation credits"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "admin"],
+          "description": "User privilege role"
+        },
+        "email": {
+          "type": "string",
+          "description": "User email address if authenticated via Google"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the user was registered"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the user details were last updated"
+        }
+      },
+      "required": ["uid", "credits", "role", "createdAt", "updatedAt"]
+    },
+    "Transaction": {
+      "title": "Top-Up Transaction",
+      "description": "Record of manual GoPay top-up requests to purchase credits",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Receipt/Transaction unique ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of the user raising the top-up request"
+        },
+        "packageName": {
+          "type": "string",
+          "description": "Name of the credit package selected"
+        },
+        "price": {
+          "type": "number",
+          "description": "Amount paid in Indonesian Rupiah (IDR)"
+        },
+        "credits": {
+          "type": "number",
+          "description": "Number of credits included in the package"
+        },
+        "senderName": {
+          "type": "string",
+          "description": "Sender name for payment matching"
+        },
+        "whatsappNumber": {
+          "type": "string",
+          "description": "Sender WhatsApp number"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved", "rejected"],
+          "description": "Approval status of transaction"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Transaction request date"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of most recent status change"
+        }
+      },
+      "required": ["id", "userId", "packageName", "price", "credits", "senderName", "whatsappNumber", "status", "createdAt", "updatedAt"]
+    },
+    "Generation": {
+      "title": "Generated Script History",
+      "description": "Stored archive of generated TikTok/Reels scripts",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique record key"
+        },
+        "userId": {
+          "type": "string",
+          "description": "UID of owner who consumed credits to generate script"
+        },
+        "productInput": {
+          "type": "string",
+          "description": "Name of the affiliate product analyzed"
+        },
+        "productUrl": {
+          "type": "string",
+          "description": "Optional affiliate linkage"
+        },
+        "tone": {
+          "type": "string",
+          "description": "Formality/Engage tone configured"
+        },
+        "category": {
+          "type": "string",
+          "description": "Niche/Industry selection"
+        },
+        "ctaStyle": {
+          "type": "string",
+          "description": "Call-To-Action display layout"
+        },
+        "content": {
+          "type": "object",
+          "description": "JSON structured representation of scenes, visual scripts, and copy hooks"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when successfully outputted"
+        }
+      },
+      "required": ["id", "userId", "productInput", "tone", "category", "ctaStyle", "content", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Core profile containing real-time credit balance and permissions"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Manual payment requests managed by Eko Koerniawan"
+    },
+    "/generations/{generationId}": {
+      "schema": "Generation",
+      "description": "Past script generations filtered by active session user"
+    }
+  }
+}

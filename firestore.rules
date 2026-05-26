@@ -1,0 +1,128 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Check if user is booted as Admin based on verified Google email or admin document presence
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email_verified == true && request.auth.token.email == "ekokoerniawan83@gmail.com") ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    // Validate a string representation of ID
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Admins bootstrap collection
+    match /admins/{adminId} {
+      allow get: if isSignedIn();
+      allow create: if isSignedIn() && 
+                    adminId == request.auth.uid && 
+                    request.resource.data.password == "290916" &&
+                    request.resource.data.createdAt == request.time;
+    }
+
+    // Users Collection rules
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      
+      // Ensure only authenticating users register themselves as standard users with 10 initial credits
+      allow create: if isSignedIn() && 
+                    userId == request.auth.uid && 
+                    request.resource.data.keys().hasAll(['uid', 'credits', 'role', 'createdAt', 'updatedAt']) &&
+                    request.resource.data.keys().size() == 5 &&
+                    request.resource.data.uid == request.auth.uid &&
+                    request.resource.data.credits == 10 &&
+                    request.resource.data.role == "user" &&
+                    request.resource.data.createdAt == request.time &&
+                    request.resource.data.updatedAt == request.time;
+
+      // Allow credit deductions purely for generations or full admin overrides
+      allow update: if isSignedIn() && 
+                    (
+                      // Action 1: User decrementing their credits to generate scripts or scenes
+                      (
+                        userId == request.auth.uid &&
+                        request.resource.data.uid == resource.data.uid &&
+                        request.resource.data.createdAt == resource.data.createdAt &&
+                        request.resource.data.role == resource.data.role &&
+                        request.resource.data.credits < resource.data.credits &&
+                        request.resource.data.updatedAt == request.time &&
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['credits', 'updatedAt'])
+                      ) ||
+                      // Action 2: Admin allocating credits upon manual payment confirmation
+                      (
+                        isAdmin() &&
+                        request.resource.data.uid == resource.data.uid &&
+                        request.resource.data.createdAt == resource.data.createdAt &&
+                        request.resource.data.updatedAt == request.time &&
+                        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['credits', 'role', 'updatedAt'])
+                      )
+                    );
+
+      allow delete: if isAdmin();
+    }
+
+    // Transactions/Tickets Collection rules
+    match /transactions/{transactionId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                    request.resource.data.keys().hasAll(['id', 'userId', 'packageName', 'price', 'credits', 'senderName', 'whatsappNumber', 'status', 'createdAt', 'updatedAt']) &&
+                    request.resource.data.keys().size() == 10 &&
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.status == "pending" &&
+                    request.resource.data.createdAt == request.time &&
+                    request.resource.data.updatedAt == request.time;
+
+      allow update: if isAdmin() &&
+                    request.resource.data.id == resource.data.id &&
+                    request.resource.data.userId == resource.data.userId &&
+                    request.resource.data.packageName == resource.data.packageName &&
+                    request.resource.data.price == resource.data.price &&
+                    request.resource.data.credits == resource.data.credits &&
+                    request.resource.data.senderName == resource.data.senderName &&
+                    request.resource.data.whatsappNumber == resource.data.whatsappNumber &&
+                    request.resource.data.createdAt == resource.data.createdAt &&
+                    // Restrict status transition to approved/rejected terminal locking
+                    (resource.data.status == "pending") &&
+                    (request.resource.data.status == "approved" || request.resource.data.status == "rejected") &&
+                    request.resource.data.updatedAt == request.time &&
+                    request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']);
+
+      allow delete: if isAdmin();
+    }
+
+    // Generations Collection rules
+    match /generations/{generationId} {
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      allow create: if isSignedIn() &&
+                    request.resource.data.keys().hasAll(['id', 'userId', 'productInput', 'productUrl', 'tone', 'category', 'ctaStyle', 'content', 'createdAt']) &&
+                    request.resource.data.keys().size() == 9 &&
+                    request.resource.data.userId == request.auth.uid &&
+                    request.resource.data.createdAt == request.time;
+
+      allow update: if false; // Archive generations are immutable
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+  }
+}

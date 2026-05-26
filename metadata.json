@@ -1,0 +1,6 @@
+{
+  "name": "Generator Konten Video Affiliate",
+  "description": "Generator naskah video pendek (TikTok/Reels/Shorts), judul menarik, deskripsi, hashtag affiliate, dan video prompt Veo menggunakan Gemini AI.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
